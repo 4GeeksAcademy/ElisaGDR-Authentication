@@ -2,6 +2,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
+			email: "",
 			demo: [
 				{
 					title: "FIRST",
@@ -32,6 +33,25 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}catch(error){
 					console.log("Error loading message from backend", error)
 				}
+			},
+			login: async (email, password) => {
+
+					// fetching data from the backend
+					const options = {"method": "POST", 
+					                 "headers": {"Content-Type": "application/json"},
+				                     "body": JSON.stringify({"email": email, "password": password})
+									}
+					const response = await fetch(process.env.BACKEND_URL + "/api/login", options)
+					if (!response.ok ){
+					    console.log("Error loading message from backend", response.status, response.statusText)
+					    return {status: response.status, statusText: response.statusText}
+				    }
+					const data = await response.json()
+                    localStorage.setItem("token", data.access_token)
+					setStore({ email: email })
+					// don't forget to return something, that is how the async resolves
+					return data;
+				
 			},
 			changeColor: (index, color) => {
 				//get the store
