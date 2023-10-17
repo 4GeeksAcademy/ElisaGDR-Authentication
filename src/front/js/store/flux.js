@@ -43,13 +43,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 									}
 					const response = await fetch(process.env.BACKEND_URL + "/api/login", options)
 					if (!response.ok ){
-					    console.log("Error loading message from backend", response.status, response.statusText)
-					    return {status: response.status, statusText: response.statusText}
-				    }
+						if (!response.status == 401) {
+							console.log("Error loading message from backend", response.status, response.statusText)
+							return {status: response.status, statusText: response.statusText}
+						}
+						const data = await response.json()
+						setStore({ message: data.message })
+						return data;
+				  }
 					const data = await response.json()
           localStorage.setItem("token", data.access_token)
 					setStore({ email: email });
 					setStore({ isLogin: true });
+					setStore({ message: data.message })
 					// don't forget to return something, that is how the async resolves
 					return data;
 				
